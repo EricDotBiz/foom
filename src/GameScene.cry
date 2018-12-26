@@ -1,0 +1,411 @@
+import TwoCansAlpha1;
+import Random;
+
+class Bullet{
+  field x;
+  field y;
+  field speed;
+  field dy;
+
+  constructor(x, y, speed, dy){
+    this.x = x;
+    this.y = y;
+    this.speed = speed;
+    this.dy = dy;
+  }
+}
+
+class FireBall{
+    field x;
+    field y;
+    field speed;
+    field dy;
+    field size;
+
+    constructor(x, y, targetx, targety, difficulty){
+        this.x = x;
+        this.y = y;
+        this.speed = 5+difficulty+Random.randomFloat()*difficulty-difficulty/2;
+        this.size = 15;
+        this.dy = (targety-this.y)/((this.x-targetx)/this.speed)+Random.randomFloat()/difficulty;
+        //print("bossy: " + this.y + " playery: " + targety + " dy: " + this.dy);
+    }
+}
+
+class Wall{
+  field x = 0;
+  field y = 0;
+  field width = 0;
+  field height = 0;
+
+  constructor(x, y, w, h){
+    this.x = x;
+    this.y = y;
+    this.width = w;
+    this.height = h;
+  }
+}
+
+function isRectangleCollision(x1, y1, w1, h1, x2, y2, w2, h2) {
+    if (x1+w1 < x2) return false;
+    if (x1 > x2+w2) return false;
+    if (y1+h1 < y2) return false;
+    if (y1 > y2+h2) return false;
+    return true;
+}
+
+function isPointCollision(x1, y1, x2, y2, w2, h2) {
+    if (x1 < x2) return false;
+    if (x1 > x2+w2) return false;
+    if (y1 < y2) return false;
+    if (y1 > y2+h2) return false;
+    return true;
+}
+
+function isWallCollision(x1, y1, w1, h1, collision){
+  wallCollided = -1;
+
+  for(i=0; i<collision.length; i++){
+    if(isRectangleCollision(x1, y1, w1, h1, collision[i].x, collision[i].y, collision[i].width, collision[i].height)){
+      wallCollided = i;
+    }
+  }
+  return wallCollided;
+}
+
+function applyProjectiles(bullets, fireBalls){
+  for(i = 0; i<bullets.length; i++){
+    bullets[i].x += bullets[i].speed;
+    bullets[i].y += bullets[i].dy;
+    if(bullets[i].x > 640){
+      bullets.remove(i);
+    }
+  }
+  for(i = 0; i<fireBalls.length; i++){
+    fireBalls[i].x -= fireBalls[i].speed;
+    fireBalls[i].y += fireBalls[i].dy;
+    if(fireBalls[i].x < 0){
+      fireBalls.remove(i);
+    }
+  }
+}
+
+class Player {
+    field x;
+    field y;
+    field width;
+    field height;
+    field max_width;
+    field max_height;
+        
+    field xspeed = 0;
+    field yspeed = 0;
+    field max_xspeed = 3;
+    field max_yspeed = 10;
+    field velocity = 1;
+    field gravity = 1;
+    field friction = 1;
+        
+    field touchingGround = -1;
+    field crouching = false;
+    field jumpheight = 15;
+    field max_jumpheight = 15;
+
+    constructor(x,y,w,h){
+        this.x = x;
+        this.y = y;
+        this.width = w;
+        this.height = h;
+        this.max_width = w;
+        this.max_height = h;
+    }
+
+    function update(collision){
+        if(this.xspeed < -this.max_xspeed){
+            this.xspeed = -this.max_xspeed;
+        }else if(this.xspeed > this.max_xspeed){
+            this.xspeed = this.max_xspeed;
+        }
+        
+        if(this.xspeed != 0){
+            if(this.x+this.xspeed < 0){
+                this.x = 0;
+                this.xspeed = 0;
+            }else if(this.x+this.xspeed > 640-this.width){
+                this.x = 640-this.width;
+                this.xspeed = 0;
+            }else{
+                wallCollided = -1;
+                if(this.xspeed < 0){
+                    wallCollided = isWallCollision(this.x+this.xspeed, this.y+1, 1, this.height-5, collision);
+                    if(wallCollided != -1){
+                        this.x = collision[wallCollided].x+collision[wallCollided].width;
+                        this.xspeed = 0;
+                    }else{
+                        this.x += this.xspeed;
+                    }
+                }else{
+                    wallCollided = isWallCollision(this.x+this.width+this.xspeed, this.y+1, 1, this.height-5, collision);
+                    if(wallCollided != -1){
+                        this.x = collision[wallCollided].x-this.width;
+                        this.xspeed = 0;
+                    }else{
+                        this.x += this.xspeed;
+                    }
+                }
+            }
+        }
+
+        if(this.crouching){    
+            this.height = this.max_height/2;
+            this.jumpheight = this.max_jumpheight/2;
+        }else{
+            this.height = this.max_height;
+            this.jumpheight = this.max_jumpheight;
+        }
+
+        this.touchingGround = isWallCollision(this.x+2, this.y+this.height+this.yspeed, this.width-4, 1, collision);
+
+        if(this.touchingGround == -1){
+            this.velocity = 0.5;
+            this.friction = 0;
+            if(isWallCollision(this.x+2, this.y+this.yspeed, this.width-4, 1, collision)!=-1){
+                this.yspeed = 0;
+            }
+            this.yspeed += this.gravity;
+        }else{
+            this.velocity = 1;
+            this.friction = 1;
+            this.y = collision[this.touchingGround].y-this.height;
+            this.yspeed = 0;
+        }
+
+        this.x += this.xspeed;
+        this.y += this.yspeed;
+    }
+
+    function jump(){
+        if(this.touchingGround != -1){    
+            this.touchingGround = -1;
+            this.yspeed -= this.jumpheight;
+        }
+    }
+}
+
+class Enemy {
+    field x;
+    field y;
+    field width;
+    field height;
+    field xspeed;
+    field yspeed;
+    field speed; 
+    field upperBound;
+    field lowerBound;
+    field shootTimer;
+    field shootDelay;
+    field difficulty;
+
+    constructor(x,y,w,h, difficulty){
+        this.difficulty = difficulty;
+        this.x = x;
+        this.y = y;
+        this.width = w;
+        this.height = h/(this.difficulty**0.9);
+        this.speed = this.difficulty**1.6+1;
+        this.upperBound = 50;
+        this.lowerBound = 400-this.height;
+        
+        if(this.y > this.lowerBound){
+            this.yspeed = -this.speed;
+        }else{
+            this.yspeed = this.speed;
+        }
+
+        this.shootTimer = 180/this.difficulty;
+        this.shootDelay = 180/(this.difficulty**1.7);
+    }
+
+    function update(fireBalls, playerx, playery){
+        if(this.shootTimer <= 0){
+            fireBalls.add(new FireBall(this.x, this.y+this.height/2, playerx, playery, this.difficulty));
+            //print("shot fireball");
+            this.shootTimer = this.shootDelay;
+        }else{
+            this.shootTimer--;
+        }
+        
+        if(this.y > this.lowerBound){
+            this.yspeed = -this.speed;
+        }
+        
+        if(this.y < this.upperBound){
+            this.yspeed = this.speed;
+        }
+
+        this.y += this.yspeed;
+    }
+}
+
+class GameScene : AbstractScene {
+	field mainLayer;
+    field bgm;
+    field player;
+    field bullets;
+    field collision;
+    field windowWidth = 640;
+    field windowHeight = 480;
+
+    field gunCharge = 100;
+    field shotgunDelay = 20;
+    field shootDelay = 5;
+    field shootTimer = 0;
+    field shootSpeed = 10;
+    field shotgunSpeed = 27;
+    field shotgunPellets = 5;
+    
+    field rechargeDelay = 7;
+    field rechargeTimer = 0;
+    
+    field boss;
+    field bossHealth;
+    field maxBossHealth;
+    field fireBalls;
+    field bossHitColor;
+
+    field difficulty;
+
+    constructor(difficulty) : base() {
+        this.difficulty = difficulty;
+        this.player = new Player(50,100,40,40);
+        if(this.difficulty != 0){
+            this.boss = new Enemy(550, 100, 60, 210, this.difficulty);
+            this.bossHealth = 75.0+this.difficulty**4.5;
+            this.maxBossHealth = this.bossHealth;
+        }
+		this.addLayer(new SolidColorLayer(Color.BLACK));
+		this.mainLayer = this.addLayer(new GraphicsLayer());
+        this.bullets = [];
+        this.fireBalls = [];
+        this.collision = [];
+        
+        this.collision.add(new Wall(0, this.windowHeight-40, this.windowWidth, 40));
+        this.collision.add(new Wall(0, this.windowHeight-80, 260, 40));
+        this.collision.add(new Wall(0, this.windowHeight-120, 160, 40));
+        this.collision.add(new Wall(0, this.windowHeight-200, 40, 80));
+        this.collision.add(new Wall(160, this.windowHeight-280, 120, 20));
+    }
+
+    function update(inputManager, events){
+        if(this.bossHealth <= 0){
+            this.switchScene(new WinScene(this.difficulty));
+        }
+
+        if(isRectangleCollision(this.player.x, this.player.y, this.player.width, this.player.height, this.boss.x, this.boss.y, this.boss.width, this.boss.height)){
+            this.switchScene(new DeadScene(this.difficulty));
+        }
+
+        for(fireball : this.fireBalls){
+            if(isRectangleCollision(this.player.x, this.player.y, this.player.width, this.player.height, fireball.x, fireball.y, fireball.size, fireball.size)){
+                this.switchScene(new DeadScene(this.difficulty));
+            }
+        }
+
+        if (inputManager.isKeyPressed(KeyboardKey.Q)) {
+            this.switchScene(new TitelScene());
+		}
+
+        if (inputManager.isKeyPressed(KeyboardKey.DOWN)) {
+            this.player.crouching = true;
+		}else{
+            this.player.crouching = false;
+        }
+
+        if (inputManager.isKeyPressed(KeyboardKey.UP)) {
+            this.player.jump();
+		}
+        
+        if (inputManager.isKeyPressed(KeyboardKey.LEFT) && !this.player.crouching) {
+            this.player.xspeed -= this.player.velocity;
+		}else if (inputManager.isKeyPressed(KeyboardKey.RIGHT) && !this.player.crouching) {
+            this.player.xspeed += this.player.velocity;
+		}else if(this.player.xspeed < this.player.velocity && this.player.xspeed > -this.player.velocity){
+            this.player.xspeed = 0;
+        }else if(this.player.xspeed > 0){
+            this.player.xspeed -= this.player.friction;
+        }else if(this.player.xspeed < 0){
+            this.player.xspeed += this.player.friction;
+        }
+
+        this.player.update(this.collision);
+        
+        if(this.difficulty != 0){
+            this.boss.update(this.fireBalls, this.player.x, this.player.y);
+        }
+        
+        if(this.shootTimer > 0){
+            this.shootTimer--;
+        }
+        
+        if (inputManager.isKeyPressed(KeyboardKey.Z)){
+            if(this.gunCharge > 0){
+                if(this.shootTimer == 0){
+                    this.bullets.add(new Bullet(this.player.x+this.player.width, this.player.y, this.shootSpeed, Random.randomFloat()-0.5));
+                    this.gunCharge-=6;
+                    this.shootTimer = this.shootDelay;
+                    this.rechargeTimer = this.rechargeDelay;
+                }
+            }
+        }else if (inputManager.isKeyPressed(KeyboardKey.X)){
+            if(this.gunCharge >= 50){
+                if(this.shootTimer == 0){
+                    for(i=0; i<this.shotgunPellets; i++){
+                        this.bullets.add(new Bullet(this.player.x+this.player.width, this.player.y, this.shotgunSpeed, Random.randomFloat()*10-5));
+                        this.rechargeTimer = this.rechargeDelay*5;
+                    }
+                    this.gunCharge-=50;
+                    this.shootTimer = this.shotgunDelay;
+                }
+            }
+        }else if(this.gunCharge < 100){
+            if(this.rechargeTimer <= 0){
+                this.gunCharge += 3;
+            }else{
+                this.rechargeTimer--;
+            }
+        }else{
+            this.gunCharge = 100;
+        }
+
+        applyProjectiles(this.bullets, this.fireBalls);
+
+        this.bossHitColor = new Color(255,255,255);
+
+        for(i = 0; i<this.bullets.length; i++){
+            if(isPointCollision(this.bullets[i].x, this.bullets[i].y, this.boss.x, this.boss.y, this.boss.width, this.boss.height)){
+                this.bossHealth--;
+                this.bullets.remove(i);
+                this.bossHitColor = new Color(255, 175, 175);
+                //print("BOSS HEALTH: " + this.bossHealth);
+            }
+        }
+            
+    }
+
+    function render(){
+		this.mainLayer.drawRectangle(this.player.x, this.player.y, this.player.width, this.player.height-this.player.yspeed/1.5, Color.RED);
+        this.mainLayer.drawRectangle(this.boss.x, this.boss.y, this.boss.width, this.boss.height, this.bossHitColor);
+		if(this.gunCharge >= 0){ this.mainLayer.drawRectangle(this.player.x, this.player.y-10, this.gunCharge/2.5, 5, Color.YELLOW); }
+		this.mainLayer.drawRectangle(0, 2, this.bossHealth/(this.maxBossHealth/this.windowWidth), 10, new Color(255,255*this.bossHealth/this.maxBossHealth,255*this.bossHealth/this.maxBossHealth));
+
+        for(wall : this.collision){
+            this.mainLayer.drawRectangle(wall.x, wall.y, wall.width, wall.height, Color.BLUE);
+        }
+        for(bullet : this.bullets){
+            this.mainLayer.drawRectangle(bullet.x, bullet.y, 5, 5, Color.YELLOW);
+        }
+        for(fireball : this.fireBalls){
+            this.mainLayer.drawRectangle(fireball.x, fireball.y, fireball.size, fireball.size, Color.WHITE);
+        }
+    }
+}

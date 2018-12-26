@@ -1,0 +1,25 @@
+import TwoCansAlpha1;
+
+class DeadScene : AbstractScene {
+	field mainLayer;
+    field difficulty;
+
+    constructor(difficulty) : base(){
+		this.addLayer(new SolidColorLayer(Color.BLACK));
+		this.mainLayer = this.addLayer(new GraphicsLayer());
+        this.difficulty = difficulty;
+    }
+
+    function update(inputManager, events){
+        if (inputManager.isKeyPressed(KeyboardKey.SPACE)){
+            this.switchScene(new GameScene(this.difficulty));
+        }
+        if (inputManager.isCtrlPressed()){
+            this.switchScene(new TitelScene());
+        }
+    }
+
+    function render(){
+		this.mainLayer.drawImage(Images.get('imgs/dead.jpg'), 170, 190);
+    }
+}

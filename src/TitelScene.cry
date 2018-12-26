@@ -1,0 +1,36 @@
+import TwoCansAlpha1;
+
+class TitelScene : AbstractScene {
+    field mainLayer;
+
+    constructor() : base(){
+		this.addLayer(new SolidColorLayer(Color.BLACK));
+		this.mainLayer = this.addLayer(new GraphicsLayer());
+    }
+
+    function update(inputManager, events){
+        if (inputManager.isKeyPressed(KeyboardKey.NUM_1)){
+            this.switchScene(new GameScene(1));
+        }else if (inputManager.isKeyPressed(KeyboardKey.NUM_2)){
+            this.switchScene(new GameScene(2));
+        }else if (inputManager.isKeyPressed(KeyboardKey.NUM_3)){
+            this.switchScene(new GameScene(3));
+        }else if (inputManager.isKeyPressed(KeyboardKey.NUM_4)){
+            this.switchScene(new GameScene(4));
+        }else if (inputManager.isKeyPressed(KeyboardKey.NUM_5)){
+            this.switchScene(new GameScene(5));
+        }else if (inputManager.isKeyPressed(KeyboardKey.NUM_6)){
+            this.switchScene(new GameScene(6));
+        }else if (inputManager.isKeyPressed(KeyboardKey.NUM_7)){
+            this.switchScene(new GameScene(7));
+        }else if (inputManager.isKeyPressed(KeyboardKey.NUM_8)){
+            this.switchScene(new GameScene(8));
+        }else if (inputManager.isKeyPressed(KeyboardKey.NUM_9)){
+            this.switchScene(new GameScene(9));
+        }
+    }
+
+    function render(){
+        this.mainLayer.drawImage(Images.get('imgs/titel.jpg'), 0, 0);
+    }
+}
