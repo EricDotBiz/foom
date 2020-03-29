@@ -1,11 +1,9 @@
-import TwoCansAlpha1;
+import Graphics2D;
+import TwoCansAlpha4;
 
 class TitelScene : AbstractScene {
-    field mainLayer;
 
     constructor() : base(){
-		this.addLayer(new SolidColorLayer(Color.BLACK));
-		this.mainLayer = this.addLayer(new GraphicsLayer());
     }
 
     function update(inputManager, events){
@@ -31,6 +29,7 @@ class TitelScene : AbstractScene {
     }
 
     function render(){
-        this.mainLayer.drawImage(Images.get('imgs/titel.jpg'), 0, 0);
+		Draw.fill(0, 0, 0);
+        Images.get('imgs/titel.jpg').draw(0, 0);
     }
 }

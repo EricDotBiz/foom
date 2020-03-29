@@ -1,64 +1,59 @@
-<build>
-	<projectname>Farts</projectname>
-	<title>Foom</title>
-	<description>High class action shooter</description>
+{
+	"id": "Farts",
+	"title": "Foom",
+	"description": "High class action shooter",
 	
-	<!--
-		Insert the location of your TwoCans SDK here.
-		For example: <crayonpath>C:\MyStuff\TwoCansSDK</crayonpath>
-	-->
-	<crayonpath>C:\CrayonProjs\TwoCansSDK</crayonpath>
-
-	<source>src</source>
-	<compilerlocale>en</compilerlocale>
-	<output>output/%TARGET_NAME%</output>
+	"icons": [
+		"assets/icon32.png",
+		"assets/icon256.png"
+	],
 	
-	<imagesheets>
-		<sheet id="twocans_everything">
-			<prefix>*</prefix>
-		</sheet>
-	</imagesheets>
+	"deps": [
+		"%TWOCANS_SDK%/TwoCansAlpha4"
+	],
 	
-	<guidseed>com.twocansandstring.games.FartGame,v1,%TARGET_NAME%</guidseed>
+	"source": "src",
+	"output": "output/TARGET_NAME%",
 	
-	<!-- Set your game title here. -->
-    <var type="string">
-      <id>game_title</id>
-      <value>Foom</value>
-    </var>
-    
-	<!-- The class name of your starting scene. -->
-    <var type="string">
-      <id>initial_scene</id>
-      <value>TitelScene</value>
-    </var>
-    
-	<!-- Set this value to true to run at 60 fps. Default is 30 fps. -->
-    <var type="boolean">
-      <id>use_60_fps</id>
-      <value>true</value>
-    </var>
+	"image-sheets": [
+		{ "id": "twocans_everything", "prefix": "*" }
+	],
 	
-	<!-- Set this to true to alias the WASD keys to arrow keys -->
-    <var type="boolean">
-      <id>enable_wasd</id>
-      <value>true</value>
-    </var>
+	"guidseed": "com.twocansandstring.games.FartGame,v1,%TARGET_NAME%",
 	
-	<!-- The following can be modified to export to other platforms. Anything in these targets will be ignored when uploaded to TwoCans. -->
-	<target name="csharp">
-		<platform>csharp-app</platform>
-	</target>
+	"delegate-main-to": "TwoCansAlpha4",
 	
-	<target name="java">
-		<platform>java-app</platform>
-	</target>
+	"vars": [
+		{ "name": "screen_width", "value": 640 },
+		{ "name": "screen_height", "value": 480 },
+		{ "name": "use_beta_endpoint", "value": false },
+		{ "name": "game_title", "value": "Foom" },
+		{ "name": "initial_scene", "value": "TitelScene" },
+		{ "name": "use_60_fps", "value": true },
+		{ "name": "enable_wasd", "value": true },
+		{ "name": "thumbnail", "value": "assets/thumbnail.jpg" }
+	],
 	
-	<target name="python">
-		<platform>python-app</platform>
-	</target>
-	
-	<target name="ios">
-		<platform>javascript-app-ios</platform>
-	</target>
-</build>
+	"targets": [
+		{
+			"name": "csharp",
+			"platform": "csharp-app"
+		},
+		{
+			"name": "java",
+			"platform": "java-app"
+		},
+		{
+			"name": "python",
+			"platform": "python-app"
+		},
+		{
+			"name": "ios",
+			"platform": "javascript-app-ios"
+		},
+		{
+			"name": "android",
+			"platform": "javascript-app-android"
+		}
+	]
+}
