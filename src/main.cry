@@ -1,5 +1,0 @@
-import TwoCansAlpha1;
-
-function main(args){
-    TwoCansAlpha1.startGame();
-}

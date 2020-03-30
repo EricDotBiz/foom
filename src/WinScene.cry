@@ -1,12 +1,10 @@
-import TwoCansAlpha1;
+import Graphics2D;
+import TwoCansAlpha4;
 
 class WinScene : AbstractScene {
-	field mainLayer;
     field difficulty;
 
     constructor(difficulty) : base(){
-		this.addLayer(new SolidColorLayer(Color.BLACK));
-		this.mainLayer = this.addLayer(new GraphicsLayer());
         this.difficulty = difficulty;
     }
 
@@ -20,6 +18,7 @@ class WinScene : AbstractScene {
     }
 
     function render(){
-		this.mainLayer.drawImage(Images.get('imgs/win.jpg'), 170, 190);
+		Draw.fill(0, 0, 0);
+		Images.get('imgs/win.jpg').draw(170, 190);
     }
 }

@@ -1,5 +1,6 @@
-import TwoCansAlpha1;
+import Graphics2D;
 import Random;
+import TwoCansAlpha4;
 
 class Bullet{
   field x;
@@ -248,7 +249,6 @@ class Enemy {
 }
 
 class GameScene : AbstractScene {
-	field mainLayer;
     field bgm;
     field player;
     field bullets;
@@ -283,8 +283,6 @@ class GameScene : AbstractScene {
             this.bossHealth = 75.0+this.difficulty**4.5;
             this.maxBossHealth = this.bossHealth;
         }
-		this.addLayer(new SolidColorLayer(Color.BLACK));
-		this.mainLayer = this.addLayer(new GraphicsLayer());
         this.bullets = [];
         this.fireBalls = [];
         this.collision = [];
@@ -379,13 +377,13 @@ class GameScene : AbstractScene {
 
         applyProjectiles(this.bullets, this.fireBalls);
 
-        this.bossHitColor = new Color(255,255,255);
+        this.bossHitColor = [255,255,255];
 
         for(i = 0; i<this.bullets.length; i++){
             if(isPointCollision(this.bullets[i].x, this.bullets[i].y, this.boss.x, this.boss.y, this.boss.width, this.boss.height)){
                 this.bossHealth--;
                 this.bullets.remove(i);
-                this.bossHitColor = new Color(255, 175, 175);
+                this.bossHitColor = [255, 175, 175];
                 //print("BOSS HEALTH: " + this.bossHealth);
             }
         }
@@ -393,19 +391,19 @@ class GameScene : AbstractScene {
     }
 
     function render(){
-		this.mainLayer.drawRectangle(this.player.x, this.player.y, this.player.width, this.player.height-this.player.yspeed/1.5, Color.RED);
-        this.mainLayer.drawRectangle(this.boss.x, this.boss.y, this.boss.width, this.boss.height, this.bossHitColor);
-		if(this.gunCharge >= 0){ this.mainLayer.drawRectangle(this.player.x, this.player.y-10, this.gunCharge/2.5, 5, Color.YELLOW); }
-		this.mainLayer.drawRectangle(0, 2, this.bossHealth/(this.maxBossHealth/this.windowWidth), 10, new Color(255,255*this.bossHealth/this.maxBossHealth,255*this.bossHealth/this.maxBossHealth));
+		Draw.rectangle(this.player.x, this.player.y, this.player.width, this.player.height-this.player.yspeed/1.5, 255, 0, 0);
+        Draw.rectangle(this.boss.x, this.boss.y, this.boss.width, this.boss.height, this.bossHitColor[0], this.bossHitColor[1], this.bossHitColor[2]);
+		if(this.gunCharge >= 0){ Draw.rectangle(this.player.x, this.player.y-10, this.gunCharge/2.5, 5, 255, 255, 0); }
+		Draw.rectangle(0, 2, this.bossHealth/(this.maxBossHealth/this.windowWidth), 10, 255,255*this.bossHealth/this.maxBossHealth,255*this.bossHealth/this.maxBossHealth);
 
         for(wall : this.collision){
-            this.mainLayer.drawRectangle(wall.x, wall.y, wall.width, wall.height, Color.BLUE);
+            Draw.rectangle(wall.x, wall.y, wall.width, wall.height, 0, 0, 255);
         }
         for(bullet : this.bullets){
-            this.mainLayer.drawRectangle(bullet.x, bullet.y, 5, 5, Color.YELLOW);
+            Draw.rectangle(bullet.x, bullet.y, 5, 5, 255, 255, 0);
         }
         for(fireball : this.fireBalls){
-            this.mainLayer.drawRectangle(fireball.x, fireball.y, fireball.size, fireball.size, Color.WHITE);
+            Draw.rectangle(fireball.x, fireball.y, fireball.size, fireball.size, 255, 255, 255);
         }
     }
 }

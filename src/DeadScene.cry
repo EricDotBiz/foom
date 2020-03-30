@@ -1,12 +1,13 @@
-import TwoCansAlpha1;
+import Graphics2D;
+import TwoCansAlpha4;
 
 class DeadScene : AbstractScene {
 	field mainLayer;
     field difficulty;
 
     constructor(difficulty) : base(){
-		this.addLayer(new SolidColorLayer(Color.BLACK));
-		this.mainLayer = this.addLayer(new GraphicsLayer());
+		//this.addLayer(new SolidColorLayer(Color.BLACK));
+		//this.mainLayer = this.addLayer(new GraphicsLayer());
         this.difficulty = difficulty;
     }
 
@@ -20,6 +21,7 @@ class DeadScene : AbstractScene {
     }
 
     function render(){
-		this.mainLayer.drawImage(Images.get('imgs/dead.jpg'), 170, 190);
+		Draw.fill(0, 0, 0);
+		Images.get('imgs/dead.jpg').draw(170, 190);
     }
 }
